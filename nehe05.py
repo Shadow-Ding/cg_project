@@ -14,8 +14,8 @@ from OpenGL.GLUT import *
 import json
 
 FrameSpeed=20
-lengthRatio=500
-verticies = ((0,0,0),(0,0,1),(0,1,0),(1,0,0))
+lengthRatio=2
+verticies = ((0,0,0),(1,0,0),(0,1,0),(0,0,1))
 lineOrder=(
     (0,1),
     (0,4),
@@ -35,6 +35,94 @@ lineOrder=(
     (14,15),
     (15,16)
     )
+
+def nehe_draw():
+    """
+    from nehe tutorial
+    """
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); # Clear The Screen And The Depth Buffer
+    # glLoadIdentity();                   # Reset The View
+    # glTranslatef(-1.5f,0.0,-6.0);             # Move Left And Into The Screen
+    # glRotatef(rtri,0.0,1.0,0.0);             # Rotate The Pyramid On It's Y Axis
+    glBegin(GL_TRIANGLES);                  # Start Drawing The Pyramid
+    
+    glColor3f(1.0,0.0,0.0)          # Red
+    glVertex3f( 0.0/lengthRatio, 1.0/lengthRatio, 0.0/lengthRatio)        # Top Of Triangle (Front)
+    glColor3f(0.0,1.0,0.0);          # Green
+    glVertex3f(-1.0/lengthRatio,-1.0/lengthRatio, 1.0/lengthRatio);          # Left Of Triangle (Front)
+    glColor3f(0.0,0.0,1.0);          # Blue
+    glVertex3f( 1.0/lengthRatio,-1.0/lengthRatio, 1.0/lengthRatio);          # Right Of Triangle (Front)
+
+    glColor3f(1.0,0.0,0.0);          # Red
+    glVertex3f( 0.0/lengthRatio, 1.0/lengthRatio, 0.0/lengthRatio);          # Top Of Triangle (Right)
+    glColor3f(0.0,0.0,1.0);          # Blue
+    glVertex3f( 1.0/lengthRatio,-1.0/lengthRatio, 1.0/lengthRatio);          # Left Of Triangle (Right)
+    glColor3f(0.0,1.0,0.0);          # Green
+    glVertex3f(1.0/lengthRatio,-1.0/lengthRatio, -1.0/lengthRatio);         # Right Of Triangle (Right)
+
+    glColor3f(1.0,0.0,0.0);          # Red
+    glVertex3f( 0.0/lengthRatio, 1.0/lengthRatio, 0.0/lengthRatio);          # Top Of Triangle (Back)
+    glColor3f(0.0,1.0,0.0);          # Green
+    glVertex3f( 1.0/lengthRatio,-1.0/lengthRatio, -1.0/lengthRatio);         # Left Of Triangle (Back)
+    glColor3f(0.0,0.0,1.0);          # Blue
+    glVertex3f(-1.0/lengthRatio,-1.0/lengthRatio, -1.0/lengthRatio);         # Right Of Triangle (Back)
+
+    glColor3f(1.0,0.0,0.0);          # Red
+    glVertex3f( 0.0/lengthRatio, 1.0/lengthRatio, 0.0/lengthRatio);          # Top Of Triangle (Left)
+    glColor3f(0.0,0.0,1.0);          # Blue
+    glVertex3f(-1.0/lengthRatio,-1.0/lengthRatio,-1.0/lengthRatio);          # Left Of Triangle (Left)
+    glColor3f(0.0,1.0,0.0);          # Green
+    glVertex3f(-1.0/lengthRatio,-1.0/lengthRatio, 1.0/lengthRatio);          # Right Of Triangle (Left)
+    glEnd()
+
+#     glLoadIdentity();
+    glPushMatrix()
+
+    glTranslatef(1.5,0.0,-7.0);              # Move Right And Into The Screen
+ 
+# glRotatef(rquad,1.0,1.0,1.0);            # Rotate The Cube On X, Y & Z
+ 
+    glBegin(GL_QUADS);                  # Start Drawing The Cube
+    glColor3f(0.0,1.0,0.0);          # Set The Color To Green
+    glVertex3f( 1.0, 1.0,-1.0);          # Top Right Of The Quad (Top)
+    glVertex3f(-1.0, 1.0,-1.0);          # Top Left Of The Quad (Top)
+    glVertex3f(-1.0, 1.0, 1.0);          # Bottom Left Of The Quad (Top)
+    glVertex3f( 1.0, 1.0, 1.0);          # Bottom Right Of The Quad (Top)
+
+    glColor3f(1.0,0.5,0.0);          # Set The Color To Orange
+    glVertex3f( 1.0,-1.0, 1.0);          # Top Right Of The Quad (Bottom)
+    glVertex3f(-1.0,-1.0, 1.0);          # Top Left Of The Quad (Bottom)
+    glVertex3f(-1.0,-1.0,-1.0);          # Bottom Left Of The Quad (Bottom)
+    glVertex3f( 1.0,-1.0,-1.0);          # Bottom Right Of The Quad (Bottom)
+
+    glColor3f(1.0,0.0,0.0);          # Set The Color To Red
+    glVertex3f( 1.0, 1.0, 1.0);          # Top Right Of The Quad (Front)
+    glVertex3f(-1.0, 1.0, 1.0);          # Top Left Of The Quad (Front)
+    glVertex3f(-1.0,-1.0, 1.0);          # Bottom Left Of The Quad (Front)
+    glVertex3f( 1.0,-1.0, 1.0);          # Bottom Right Of The Quad (Front)
+
+    glColor3f(1.0,1.0,0.0);          # Set The Color To Yellow
+    glVertex3f( 1.0,-1.0,-1.0);          # Bottom Left Of The Quad (Back)
+    glVertex3f(-1.0,-1.0,-1.0);          # Bottom Right Of The Quad (Back)
+    glVertex3f(-1.0, 1.0,-1.0);          # Top Right Of The Quad (Back)
+    glVertex3f( 1.0, 1.0,-1.0);          # Top Left Of The Quad (Back)
+
+    glColor3f(0.0,0.0,1.0);          # Set The Color To Blue
+    glVertex3f(-1.0, 1.0, 1.0);          # Top Right Of The Quad (Left)
+    glVertex3f(-1.0, 1.0,-1.0);          # Top Left Of The Quad (Left)
+    glVertex3f(-1.0,-1.0,-1.0);          # Bottom Left Of The Quad (Left)
+    glVertex3f(-1.0,-1.0, 1.0);          # Bottom Right Of The Quad (Left)
+
+    glColor3f(1.0,0.0,1.0);          # Set The Color To Violet
+    glVertex3f( 1.0, 1.0,-1.0);          # Top Right Of The Quad (Right)
+    glVertex3f( 1.0, 1.0, 1.0);          # Top Left Of The Quad (Right)
+    glVertex3f( 1.0,-1.0, 1.0);          # Bottom Left Of The Quad (Right)
+    glVertex3f( 1.0,-1.0,-1.0);          # Bottom Right Of The Quad (Right)
+    glEnd();                        # Done Drawing The Quad
+
+    glPopMatrix()
+
+
 
 def cross_product_3(a,b):  
     c = [a[1]*b[2] - a[2]*b[1],
@@ -113,7 +201,7 @@ def initView(width=800, height=600):
 
     glMatrixMode(GL_MODELVIEW)
     # gluLookAt(0, 0, 15, 0, 0, 0, 1, 1, 90)
-    gluLookAt(10, -2, 0, 0, 0, 0, 0, 0, 1)
+    gluLookAt(10, -2, 0, 0, 0, 0, 1, 1, 0)
     viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
     glLoadIdentity()
 
@@ -169,17 +257,17 @@ def getInput(run):
 # coordinate (Draw the coordinate)
 def Coord():
     glBegin(GL_LINES)
-    glColor4f(1, 0, 0, 1)  # Select color
+    glColor4f(1, 0, 0, 1)  # Select color: red, X axis
     glVertex3fv(verticies[0])
     glVertex3fv(verticies[1])
     glEnd()
     glBegin(GL_LINES)
-    glColor4f(0, 1, 0, 1)  # Select color
+    glColor4f(0, 1, 0, 1)  # Select color: green, Y axis
     glVertex3fv(verticies[0])
     glVertex3fv(verticies[2])
     glEnd()
     glBegin(GL_LINES)
-    glColor4f(0, 0, 1, 1)  # Select color
+    glColor4f(0, 0, 1, 1)  # Select color: blue, Z axis
     glVertex3fv(verticies[0])
     glVertex3fv(verticies[3])
     glEnd()
@@ -202,16 +290,7 @@ cylinder = gluNewQuadric()  # Create new cylinder
 
 run = [True, 0]
 while run:
-    idx=0
-    while idx < 370:
-        # s = "%02d" % idx
-        s = str(idx)
-        nm='animation/'+ s +'.json'
-        # print(nm)
     
-        with open(nm) as f:
-            skeleton = json.load(f)
-
         run = getInput(run)
         if run[0]==False:
             pygame.quit()
@@ -241,8 +320,7 @@ while run:
                     glRotatef(2, 0, 0, 1) # rotate model axis Z
                 else:
                     pass
-        # glTranslatef(0.01,0,0)
-        # glRotatef(2, 0, 0, 1)
+
         viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 
         # printmatrix4(c)
@@ -251,29 +329,9 @@ while run:
         glPopMatrix()
 
         glMultMatrixf(viewMatrix)
+        # glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear the screen
 
-        # drawCylinder(cylinder,0.5,0.5,1,0,0,0)
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear the screen
-
-
-
-        # with open('animation/100.json') as f:
-        #     skeleton = json.load(f)
-
-        for joint in skeleton:
-            drawSphere(sphere, (joint[0]-skeleton[0][0])/lengthRatio,
-                    (joint[1]-skeleton[0][1])/lengthRatio, (joint[2]-skeleton[0][2])/lengthRatio)
-        
-        for line in lineOrder:
-            # print(line)
-            v1=skeleton[line[0]]
-            v2=skeleton[line[1]]
-            cylinder_2p(cylinder,v1,v2,lengthRatio)
-        
-        # gluCylinder(cylinder, 0.1,0.1,1, 32, 16)  # Draw sphere
-        # temp_drawCylinder()
-
+        nehe_draw()
         
         Coord()
         # drawSphere(sphere, -1.5, 0, 0)
@@ -283,7 +341,5 @@ while run:
 
         pygame.display.flip()  # Update the screen
         pygame.time.wait(FrameSpeed)
-
-        idx=idx+1
 
 pygame.quit()
