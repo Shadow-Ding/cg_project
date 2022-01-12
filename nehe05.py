@@ -13,6 +13,10 @@ from OpenGL.GLUT import *
 
 import json
 
+from PIL import Image
+
+# imageName="lena_gray.bmp"
+imageName="Lena.png"
 FrameSpeed=20
 lengthRatio=2
 verticies = ((0,0,0),(1,0,0),(0,1,0),(0,0,1))
@@ -36,11 +40,71 @@ lineOrder=(
     (15,16)
     )
 
+def loadImage(imageName):
+    """Load an image file as a 2D texture using PIL"""
+    im= Image.open(imageName)
+    # ix, iy, image = im.size[0], im.size[1], im.tobytes("raw", "RGBX", 0, -1)
+    ix, iy, image = im.size[0], im.size[1], im.tobytes("raw", "RGBX",0,-1)
+    # print(len(image))
+    ID = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, ID)
+    # glPixelStorei(GL_UNPACK_ALIGNMENT,1)
+    glTexImage2D(
+            GL_TEXTURE_2D, 0, 3, ix, iy, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, image
+        )
+    return ID
+
+def setTexture():
+    """
+    docstring
+    """
+    glEnable(GL_TEXTURE_2D)
+    # glShadeModel(GL_SMOOTH)
+    # glDisable( GL_LIGHTING) # context lights by default
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL) # help make the texture not affected by glcolor
+
+def drawCube():
+    """Draw a cube with texture coordinates"""
+    glPushMatrix()
+    glTranslatef(0, 3, 0)  # Move to the place
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -1.0,  1.0);
+    glTexCoord2f(1.0, 0.0); glVertex3f( 1.0, -1.0,  1.0);
+    glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0,  1.0);
+    glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0,  1.0);
+    glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0, -1.0);
+    glTexCoord2f(1.0, 1.0); glVertex3f(-1.0,  1.0, -1.0);
+    glTexCoord2f(0.0, 1.0); glVertex3f( 1.0,  1.0, -1.0);
+    glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0, -1.0);
+    glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0, -1.0);
+    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0,  1.0,  1.0);
+    glTexCoord2f(1.0, 0.0); glVertex3f( 1.0,  1.0,  1.0);
+    glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0, -1.0);
+    glTexCoord2f(1.0, 1.0); glVertex3f(-1.0, -1.0, -1.0);
+    glTexCoord2f(0.0, 1.0); glVertex3f( 1.0, -1.0, -1.0);
+    glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0,  1.0);
+    glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0,  1.0);
+    glTexCoord2f(1.0, 0.0); glVertex3f( 1.0, -1.0, -1.0);
+    glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0, -1.0);
+    glTexCoord2f(0.0, 1.0); glVertex3f( 1.0,  1.0,  1.0);
+    glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0,  1.0);
+    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -1.0, -1.0);
+    glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0,  1.0);
+    glTexCoord2f(1.0, 1.0); glVertex3f(-1.0,  1.0,  1.0);
+    glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0, -1.0);
+    glEnd()
+    glPopMatrix()
+
 def nehe_draw():
     """
     from nehe tutorial
     """
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); # Clear The Screen And The Depth Buffer
+    # glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); # Clear The Screen And The Depth Buffer
     # glLoadIdentity();                   # Reset The View
     # glTranslatef(-1.5f,0.0,-6.0);             # Move Left And Into The Screen
     # glRotatef(rtri,0.0,1.0,0.0);             # Rotate The Pyramid On It's Y Axis
@@ -78,7 +142,7 @@ def nehe_draw():
 #     glLoadIdentity();
     glPushMatrix()
 
-    glTranslatef(1.5,0.0,-7.0);              # Move Right And Into The Screen
+    glTranslatef(1.5,0.0,-3.0);              # Move Right And Into The Screen
  
 # glRotatef(rquad,1.0,1.0,1.0);            # Rotate The Cube On X, Y & Z
  
@@ -267,7 +331,7 @@ def Coord():
     glVertex3fv(verticies[2])
     glEnd()
     glBegin(GL_LINES)
-    glColor4f(0, 0, 1, 1)  # Select color: blue, Z axis
+    glColor4f(0, 1, 0, 1)  # Select color: blue, Z axis
     glVertex3fv(verticies[0])
     glVertex3fv(verticies[3])
     glEnd()
@@ -329,14 +393,22 @@ while run:
         glPopMatrix()
 
         glMultMatrixf(viewMatrix)
-        # glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear the screen
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear the screen
 
-        nehe_draw()
-        
+        loadImage(imageName)
+        setTexture()
+        drawCube()
+        glDisable(GL_TEXTURE_2D)
+
+        nehe_draw()        
         Coord()
+
+        # glColor3f(1,1,1)
+
+        
+
         # drawSphere(sphere, -1.5, 0, 0)
         # drawSphere(sphere, 1.5, 0, 0)
-
         # glRotatef(1, 0, 1, 0)
 
         pygame.display.flip()  # Update the screen
