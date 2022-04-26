@@ -104,7 +104,8 @@ def drawSphere(sphere, x=0, y=0, z=0, radius=0.1):
 def initView(width=800, height=600):
     pygame.init()
     display = (width, height)
-    screen = pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
+    screen = pygame.display.set_mode(display, DOUBLEBUF | OPENGL | RESIZABLE)
+    pygame.display.set_caption("CG Projects")
 
     glEnable(GL_DEPTH_TEST)
 

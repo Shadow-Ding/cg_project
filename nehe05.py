@@ -40,6 +40,15 @@ lineOrder=(
     (15,16)
     )
 
+def light():
+    """
+    lighting test
+    """
+    glLightfv( GL_LIGHT1, GL_AMBIENT, GLfloat_4(0.2, .2, .2, 1.0) );
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, GLfloat_3(.8,.8,.8));
+    glLightfv(GL_LIGHT1, GL_POSITION, GLfloat_4(-2,0,3,1) );
+    glEnable(GL_LIGHT1);
+
 def loadImage(imageName):
     """Load an image file as a 2D texture using PIL"""
     im= Image.open(imageName)
@@ -60,39 +69,51 @@ def setTexture():
     docstring
     """
     glEnable(GL_TEXTURE_2D)
-    # glShadeModel(GL_SMOOTH)
+    glShadeModel(GL_SMOOTH)
     # glDisable( GL_LIGHTING) # context lights by default
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL) # help make the texture not affected by glcolor
+    # glEnable ( GL_COLOR_MATERIAL ) # color of the polygon
 
 def drawCube():
     """Draw a cube with texture coordinates"""
     glPushMatrix()
     glTranslatef(0, 3, 0)  # Move to the place
     glBegin(GL_QUADS);
+    glNormal3f( 0.0, 0.0, 1.0)
     glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -1.0,  1.0);
     glTexCoord2f(1.0, 0.0); glVertex3f( 1.0, -1.0,  1.0);
     glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0,  1.0);
     glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0,  1.0);
+
+    glNormal3f( 0.0, 0.0,-1.0);
     glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0, -1.0);
     glTexCoord2f(1.0, 1.0); glVertex3f(-1.0,  1.0, -1.0);
     glTexCoord2f(0.0, 1.0); glVertex3f( 1.0,  1.0, -1.0);
     glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0, -1.0);
+
+    glNormal3f( 0.0, 1.0, 0.0)
     glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0, -1.0);
     glTexCoord2f(0.0, 0.0); glVertex3f(-1.0,  1.0,  1.0);
     glTexCoord2f(1.0, 0.0); glVertex3f( 1.0,  1.0,  1.0);
     glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0, -1.0);
+
+    glNormal3f( 0.0,-1.0, 0.0)
     glTexCoord2f(1.0, 1.0); glVertex3f(-1.0, -1.0, -1.0);
     glTexCoord2f(0.0, 1.0); glVertex3f( 1.0, -1.0, -1.0);
     glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0,  1.0);
     glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0,  1.0);
+
+    glNormal3f( 1.0, 0.0, 0.0)
     glTexCoord2f(1.0, 0.0); glVertex3f( 1.0, -1.0, -1.0);
     glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0, -1.0);
     glTexCoord2f(0.0, 1.0); glVertex3f( 1.0,  1.0,  1.0);
     glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0,  1.0);
+
+    glNormal3f(-1.0, 0.0, 0.0)
     glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -1.0, -1.0);
     glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0,  1.0);
     glTexCoord2f(1.0, 1.0); glVertex3f(-1.0,  1.0,  1.0);
@@ -147,12 +168,15 @@ def nehe_draw():
 # glRotatef(rquad,1.0,1.0,1.0);            # Rotate The Cube On X, Y & Z
  
     glBegin(GL_QUADS);                  # Start Drawing The Cube
+
+    glNormal3f( 0.0, 1.0, 0.0)
     glColor3f(0.0,1.0,0.0);          # Set The Color To Green
     glVertex3f( 1.0, 1.0,-1.0);          # Top Right Of The Quad (Top)
     glVertex3f(-1.0, 1.0,-1.0);          # Top Left Of The Quad (Top)
     glVertex3f(-1.0, 1.0, 1.0);          # Bottom Left Of The Quad (Top)
     glVertex3f( 1.0, 1.0, 1.0);          # Bottom Right Of The Quad (Top)
 
+    glNormal3f( 0.0, -1.0, 0.0)
     glColor3f(1.0,0.5,0.0);          # Set The Color To Orange
     glVertex3f( 1.0,-1.0, 1.0);          # Top Right Of The Quad (Bottom)
     glVertex3f(-1.0,-1.0, 1.0);          # Top Left Of The Quad (Bottom)
@@ -256,7 +280,7 @@ def drawSphere(sphere, x=0, y=0, z=0, radius=0.1):
 def initView(width=800, height=600):
     pygame.init()
     display = (width, height)
-    screen = pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
+    screen = pygame.display.set_mode(display, DOUBLEBUF | OPENGL | RESIZABLE)
 
     glEnable(GL_DEPTH_TEST)
 
@@ -348,6 +372,11 @@ def printmatrix4(templist):
     pass
 
 viewMatrix = initView(800, 600)
+
+light()
+# this Enable is important to make it work
+# glEnable(GL_LIGHTING)
+
 # initView(800, 600)
 sphere = gluNewQuadric()  # Create new sphere
 cylinder = gluNewQuadric()  # Create new cylinder
@@ -394,6 +423,8 @@ while run:
 
         glMultMatrixf(viewMatrix)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear the screen
+
+        # glDisable(GL_LIGHTING)
 
         loadImage(imageName)
         setTexture()
