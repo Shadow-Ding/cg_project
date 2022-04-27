@@ -104,6 +104,8 @@ def render():
     glDepthMask(GL_TRUE)
     glUseProgram(0)
 
+    glLoadIdentity()
+
     # pygame.display.flip()
 
 # def load_cubemap(folder_url):
@@ -235,15 +237,10 @@ def getInput(run):
             if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN or event.key == pygame.K_q:
                 run[0] = False
 
+    if run[0]==False:
+        pygame.quit()
+
     keypress = pygame.key.get_pressed()
-
-    # init model view matrix
-    glLoadIdentity()
-
-    # init the view matrix
-    glPushMatrix()
-    # glLoadIdentity()
-
     # Movement
     if keypress[pygame.K_w] or keypress[pygame.K_UP]:
         # currentMatrix=glGetInteger(GL_MATRIX_MODE)
@@ -271,6 +268,17 @@ def getInput(run):
             run[1]=0
         else:
             run[1]=3
+
+    if run[1]==1:
+        glRotatef(2, 1, 0, 0) # rotate model axis X
+    else:
+        if run[1]==2:
+            glRotatef(2, 0, 1, 0) # rotate model axis Y
+        else:
+            if run[1]==3:
+                glRotatef(2, 0, 0, 1) # rotate model axis Z
+            else:
+                pass
 
     return run
 
@@ -328,44 +336,9 @@ while run:
             skeleton = json.load(f)
 
         run = getInput(run)
-        if run[0]==False:
-            pygame.quit()
-            break
-        else:
-            pass
-        
-        # a = (GLfloat * 16)()
-        # b = (GLfloat * 16)()
-        # c = (GLfloat * 16)()
 
-        # glRotatef(2, 0, 0, 1)
-        # glGetFloatv(GL_MODELVIEW_MATRIX)
-        # glTranslatef(0.01,0,0)
-        # multiply the current matrix by the new view matrix and store the final view matrix
         glMultMatrixf(viewMatrix)
-        # glGetFloatv(GL_MODELVIEW_MATRIX)
-        # printmatrix4(a)
-        # printmatrix4(b)
-        if run[1]==1:
-            glRotatef(2, 1, 0, 0) # rotate model axis X
-        else:
-            if run[1]==2:
-                glRotatef(2, 0, 1, 0) # rotate model axis Y
-            else:
-                if run[1]==3:
-                    glRotatef(2, 0, 0, 1) # rotate model axis Z
-                else:
-                    pass
-        # glTranslatef(0.01,0,0)
-        # glRotatef(2, 0, 0, 1)
         viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
-
-        # printmatrix4(c)
-
-        # apply view matrix
-        glPopMatrix()
-
-        glMultMatrixf(viewMatrix)
 
         # drawCylinder(cylinder,0.5,0.5,1,0,0,0)
 
