@@ -40,14 +40,17 @@ lineOrder=(
     (15,16)
     )
 
+lightPos=[0.0,0.0,-3.0]
+
 def light():
     """
     lighting test
     """
-    glLightfv( GL_LIGHT1, GL_AMBIENT, GLfloat_4(0.2, .2, .2, 1.0) );
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, GLfloat_3(.8,.8,.8));
-    glLightfv(GL_LIGHT1, GL_POSITION, GLfloat_4(-2,0,3,1) );
-    glEnable(GL_LIGHT1);
+
+    glEnable(GL_LIGHT1)
+    glLightfv( GL_LIGHT1, GL_AMBIENT, GLfloat_4(0.2, .2, .2, 1.0) )
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, GLfloat_3(.8,.8,.8))
+    glLightfv(GL_LIGHT1, GL_POSITION, GLfloat_4(lightPos[0],lightPos[1],lightPos[2],1.0))
 
 def loadImage(imageName):
     """Load an image file as a 2D texture using PIL"""
@@ -75,13 +78,16 @@ def setTexture():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL) # help make the texture not affected by glcolor
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE) # help make the texture not affected by glcolor
     # glEnable ( GL_COLOR_MATERIAL ) # color of the polygon
 
 def drawCube():
     """Draw a cube with texture coordinates"""
     glPushMatrix()
+    glColor4f(1.0,1.0,1.0,1.0)
     glTranslatef(0, 3, 0)  # Move to the place
+    glEnable(GL_COLOR_MATERIAL)
+
     glBegin(GL_QUADS);
     glNormal3f( 0.0, 0.0, 1.0)
     glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -1.0,  1.0);
@@ -119,6 +125,8 @@ def drawCube():
     glTexCoord2f(1.0, 1.0); glVertex3f(-1.0,  1.0,  1.0);
     glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0, -1.0);
     glEnd()
+    glDisable(GL_COLOR_MATERIAL)
+
     glPopMatrix()
 
 def nehe_draw():
@@ -129,6 +137,8 @@ def nehe_draw():
     # glLoadIdentity();                   # Reset The View
     # glTranslatef(-1.5f,0.0,-6.0);             # Move Left And Into The Screen
     # glRotatef(rtri,0.0,1.0,0.0);             # Rotate The Pyramid On It's Y Axis
+    glEnable(GL_COLOR_MATERIAL)
+
     glBegin(GL_TRIANGLES);                  # Start Drawing The Pyramid
     
     glColor3f(1.0,0.0,0.0)          # Red
@@ -207,9 +217,14 @@ def nehe_draw():
     glVertex3f( 1.0,-1.0, 1.0);          # Bottom Left Of The Quad (Right)
     glVertex3f( 1.0,-1.0,-1.0);          # Bottom Right Of The Quad (Right)
     glEnd();                        # Done Drawing The Quad
+    glDisable(GL_COLOR_MATERIAL)
 
     glPopMatrix()
 
+def draw_ball():
+    glEnable(GL_COLOR_MATERIAL)
+    drawSphere(sphere,0.0,0.0,0.0,0.5)
+    glDisable(GL_COLOR_MATERIAL)
 
 
 def cross_product_3(a,b):  
@@ -266,14 +281,17 @@ def drawCylinder(cylinder, v1,v2, base=0.1, top=0.1):
 
     glPopMatrix()
 
-def drawSphere(sphere, x=0, y=0, z=0, radius=0.1):
+def  drawSphere(sphere, x=0, y=0, z=0, radius=0.1):
     ''' This function draws a sphere in coordinates (x,y,z) '''
     glPushMatrix()
+
+    glEnable(GL_COLOR_MATERIAL)
 
     glTranslatef(x, y, z)  # Move to the place
     glColor4f(0, 1, 0, 1)  # Select color
     # glColor4f(abs(x)+0.2, abs(y)+0.2, abs(z)+0.2, 1)  # Select color (dynamic)
     gluSphere(sphere, radius, 32, 16)  # Draw sphere
+    glDisable(GL_COLOR_MATERIAL)
 
     glPopMatrix()
 
@@ -289,9 +307,10 @@ def initView(width=800, height=600):
 
     glMatrixMode(GL_MODELVIEW)
     # gluLookAt(0, 0, 15, 0, 0, 0, 1, 1, 90)
-    gluLookAt(10, -2, 0, 0, 0, 0, 1, 1, 0)
+    # gluLookAt(10, -2, 0, 0, 0, 0, 1, 1, 0)
+    gluLookAt(10, 0, 0, 0, 0, 0, 1, 1, 0)
     viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
-    glLoadIdentity()
+    # glLoadIdentity()
 
     return viewMatrix
 
@@ -344,6 +363,7 @@ def getInput(run):
 
 # coordinate (Draw the coordinate)
 def Coord():
+    glEnable(GL_COLOR_MATERIAL)
     glBegin(GL_LINES)
     glColor4f(1, 0, 0, 1)  # Select color: red, X axis
     glVertex3fv(verticies[0])
@@ -355,10 +375,11 @@ def Coord():
     glVertex3fv(verticies[2])
     glEnd()
     glBegin(GL_LINES)
-    glColor4f(0, 1, 0, 1)  # Select color: blue, Z axis
+    glColor4f(0, 0, 1, 1)  # Select color: blue, Z axis
     glVertex3fv(verticies[0])
     glVertex3fv(verticies[3])
     glEnd()
+    glDisable(GL_COLOR_MATERIAL)
 
 def printmatrix4(templist):
     """
@@ -372,18 +393,25 @@ def printmatrix4(templist):
     pass
 
 viewMatrix = initView(800, 600)
+viewMatrix_light=viewMatrix
 
-light()
+# light()
 # this Enable is important to make it work
-# glEnable(GL_LIGHTING)
+glEnable(GL_LIGHTING)
 
 # initView(800, 600)
 sphere = gluNewQuadric()  # Create new sphere
 cylinder = gluNewQuadric()  # Create new cylinder
+light()
 
 run = [True, 0]
 while run:
-    
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear the screen
+        glLoadIdentity()
+        glMultMatrixf(viewMatrix_light)
+        glColor4f(1,1,1,1)
+        drawSphere(sphere,lightPos[0],lightPos[1],lightPos[2]+1,0.15)
+        
         run = getInput(run)
         if run[0]==False:
             pygame.quit()
@@ -422,20 +450,18 @@ while run:
         glPopMatrix()
 
         glMultMatrixf(viewMatrix)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear the screen
 
         # glDisable(GL_LIGHTING)
-
+        # drawSphere(sphere,lightPos[0],lightPos[1],lightPos[2],0.15)
+        # light()
         loadImage(imageName)
         setTexture()
         drawCube()
         glDisable(GL_TEXTURE_2D)
 
-        nehe_draw()        
+        # nehe_draw()  
+        draw_ball()
         Coord()
-
-        # glColor3f(1,1,1)
-
         
 
         # drawSphere(sphere, -1.5, 0, 0)

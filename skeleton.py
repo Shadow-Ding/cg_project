@@ -17,7 +17,8 @@ from PIL import Image
 
 FrameSpeed=20
 lengthRatio=500
-verticies = ((0,0,0),(0,0,1),(0,1,0),(1,0,0))
+lengthRatio_nehe=2
+verticies = ((0,0,0),(1,0,0),(0,1,0),(0,0,1))
 lineOrder=(
     (0,1),
     (0,4),
@@ -47,6 +48,211 @@ skyBoxFiles_path=(
     "skybox/skybox/front.jpg"
 )
 
+imageName="Lena.png"
+
+lightPos=[1.5,-2.0,-3.0]
+
+def light():
+    """
+    lighting test
+    """
+    glEnable(GL_LIGHT1)
+    glLightfv( GL_LIGHT1, GL_AMBIENT, GLfloat_4(0.2, .2, .2, 1.0) )
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, GLfloat_3(.8,.8,.8))
+    glLightfv(GL_LIGHT1, GL_POSITION, GLfloat_4(lightPos[0],lightPos[1],lightPos[2],1.0))
+
+def loadImageToTexture():
+    """Load an image file as a 2D texture using PIL"""
+    im= Image.open(imageName)
+    ix, iy, image = im.size[0], im.size[1], im.tobytes("raw", "RGBX",0,-1)
+    ID = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, ID)
+    glTexImage2D( GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image )
+    glShadeModel(GL_SMOOTH)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+    # glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL) # help make the texture not affected by glcolor
+    glBindTexture(GL_TEXTURE_2D, 0)
+    return ID
+
+def setTexture():
+    """
+    docstring
+    """
+    glEnable(GL_TEXTURE_2D)
+    glShadeModel(GL_SMOOTH)
+    # glDisable( GL_LIGHTING) # context lights by default
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL) # help make the texture not affected by glcolor
+    # glEnable ( GL_COLOR_MATERIAL ) # color of the polygon
+    glDisable(GL_TEXTURE_2D)
+
+def drawCube(ID):
+    """Draw a cube with texture coordinates"""
+    glEnable(GL_TEXTURE_2D)
+    glBindTexture(GL_TEXTURE_2D, ID)
+    glEnable ( GL_COLOR_MATERIAL ) # color of the polygon
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL) # help make the texture not affected by glcolor
+
+    glPushMatrix()
+    glTranslatef(0, 3, 0)  # Move to the place
+    glRotate(90,1,0,0)
+    glBegin(GL_QUADS)
+    glNormal3f( 0.0, 0.0, 1.0)
+    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -1.0,  1.0)
+    glTexCoord2f(1.0, 0.0); glVertex3f( 1.0, -1.0,  1.0)
+    glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0,  1.0)
+    glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0,  1.0)
+
+    glNormal3f( 0.0, 0.0,-1.0)
+    glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0, -1.0)
+    glTexCoord2f(1.0, 1.0); glVertex3f(-1.0,  1.0, -1.0)
+    glTexCoord2f(0.0, 1.0); glVertex3f( 1.0,  1.0, -1.0)
+    glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0, -1.0)
+
+    glNormal3f( 0.0, 1.0, 0.0)
+    glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0, -1.0)
+    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0,  1.0,  1.0)
+    glTexCoord2f(1.0, 0.0); glVertex3f( 1.0,  1.0,  1.0)
+    glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0, -1.0)
+
+    glNormal3f( 0.0,-1.0, 0.0)
+    glTexCoord2f(1.0, 1.0); glVertex3f(-1.0, -1.0, -1.0)
+    glTexCoord2f(0.0, 1.0); glVertex3f( 1.0, -1.0, -1.0)
+    glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0,  1.0)
+    glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0,  1.0)
+
+    glNormal3f( 1.0, 0.0, 0.0)
+    glTexCoord2f(1.0, 0.0); glVertex3f( 1.0, -1.0, -1.0)
+    glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0, -1.0)
+    glTexCoord2f(0.0, 1.0); glVertex3f( 1.0,  1.0,  1.0)
+    glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0,  1.0)
+
+    glNormal3f(-1.0, 0.0, 0.0)
+    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -1.0, -1.0)
+    glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0,  1.0)
+    glTexCoord2f(1.0, 1.0); glVertex3f(-1.0,  1.0,  1.0)
+    glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0, -1.0)
+    glEnd()
+    glBindTexture(GL_TEXTURE_2D, 0)
+    glDisable ( GL_COLOR_MATERIAL ) # color of the polygon
+    glPopMatrix()
+    glDisable(GL_TEXTURE_2D)
+
+def nehe_draw():
+    """
+    from nehe tutorial
+    """
+    # glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); # Clear The Screen And The Depth Buffer
+    # glLoadIdentity();                   # Reset The View
+    # glTranslatef(-1.5f,0.0,-6.0);             # Move Left And Into The Screen
+    # glRotatef(rtri,0.0,1.0,0.0);             # Rotate The Pyramid On It's Y Axis
+    glBegin(GL_TRIANGLES);                  # Start Drawing The Pyramid
+    
+    glColor3f(1.0,0.0,0.0)          # Red
+    glVertex3f( 0.0/lengthRatio_nehe, 1.0/lengthRatio_nehe, 0.0/lengthRatio_nehe)        # Top Of Triangle (Front)
+    glColor3f(0.0,1.0,0.0);          # Green
+    glVertex3f(-1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe, 1.0/lengthRatio_nehe);          # Left Of Triangle (Front)
+    glColor3f(0.0,0.0,1.0);          # Blue
+    glVertex3f( 1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe, 1.0/lengthRatio_nehe);          # Right Of Triangle (Front)
+
+    glColor3f(1.0,0.0,0.0);          # Red
+    glVertex3f( 0.0/lengthRatio_nehe, 1.0/lengthRatio_nehe, 0.0/lengthRatio_nehe);          # Top Of Triangle (Right)
+    glColor3f(0.0,0.0,1.0);          # Blue
+    glVertex3f( 1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe, 1.0/lengthRatio_nehe);          # Left Of Triangle (Right)
+    glColor3f(0.0,1.0,0.0);          # Green
+    glVertex3f(1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe, -1.0/lengthRatio_nehe);         # Right Of Triangle (Right)
+
+    glColor3f(1.0,0.0,0.0);          # Red
+    glVertex3f( 0.0/lengthRatio_nehe, 1.0/lengthRatio_nehe, 0.0/lengthRatio_nehe);          # Top Of Triangle (Back)
+    glColor3f(0.0,1.0,0.0);          # Green
+    glVertex3f( 1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe, -1.0/lengthRatio_nehe);         # Left Of Triangle (Back)
+    glColor3f(0.0,0.0,1.0);          # Blue
+    glVertex3f(-1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe, -1.0/lengthRatio_nehe);         # Right Of Triangle (Back)
+
+    glColor3f(1.0,0.0,0.0);          # Red
+    glVertex3f( 0.0/lengthRatio_nehe, 1.0/lengthRatio_nehe, 0.0/lengthRatio_nehe);          # Top Of Triangle (Left)
+    glColor3f(0.0,0.0,1.0);          # Blue
+    glVertex3f(-1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe);          # Left Of Triangle (Left)
+    glColor3f(0.0,1.0,0.0);          # Green
+    glVertex3f(-1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe, 1.0/lengthRatio_nehe);          # Right Of Triangle (Left)
+
+    glColor3f(0.0,0.0,1.0);          # blue
+    glVertex3f( 1.0/lengthRatio_nehe, -1.0/lengthRatio_nehe, 1.0/lengthRatio_nehe);          # Top Of Triangle (Left)
+    glColor3f(0.0,0.0,1.0);          # Blue
+    glVertex3f(-1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe);          # Left Of Triangle (Left)
+    glColor3f(0.0,0.0,1.0);          # Green
+    glVertex3f(1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe, -1.0/lengthRatio_nehe);          # Right Of Triangle (Left)
+
+    glColor3f(0.0,0.0,1.0);          # blue
+    glVertex3f( 1.0/lengthRatio_nehe, -1.0/lengthRatio_nehe, 1.0/lengthRatio_nehe);          # Top Of Triangle (Left)
+    glColor3f(0.0,0.0,1.0);          # green
+    glVertex3f(-1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe, 1.0/lengthRatio_nehe);          # Left Of Triangle (Left)
+    glColor3f(0.0,0.0,1.0);          # blue
+    glVertex3f(-1.0/lengthRatio_nehe,-1.0/lengthRatio_nehe, -1.0/lengthRatio_nehe);          # Right Of Triangle (Left)
+
+    glEnd()
+
+#     glLoadIdentity();
+    glPushMatrix()
+
+    glTranslatef(1.5,0.0,-3.0);              # Move Right And Into The Screen
+ 
+# glRotatef(rquad,1.0,1.0,1.0);            # Rotate The Cube On X, Y & Z
+ 
+    glBegin(GL_QUADS);                  # Start Drawing The Cube
+
+    glNormal3f( 0.0, 1.0, 0.0)
+    glColor3f(0.0,1.0,0.0);          # Set The Color To Green
+    glVertex3f( 1.0, 1.0,-1.0);          # Top Right Of The Quad (Top)
+    glVertex3f(-1.0, 1.0,-1.0);          # Top Left Of The Quad (Top)
+    glVertex3f(-1.0, 1.0, 1.0);          # Bottom Left Of The Quad (Top)
+    glVertex3f( 1.0, 1.0, 1.0);          # Bottom Right Of The Quad (Top)
+
+    glNormal3f( 0.0, -1.0, 0.0)
+    glColor3f(1.0,0.5,0.0);          # Set The Color To Orange
+    glVertex3f( 1.0,-1.0, 1.0);          # Top Right Of The Quad (Bottom)
+    glVertex3f(-1.0,-1.0, 1.0);          # Top Left Of The Quad (Bottom)
+    glVertex3f(-1.0,-1.0,-1.0);          # Bottom Left Of The Quad (Bottom)
+    glVertex3f( 1.0,-1.0,-1.0);          # Bottom Right Of The Quad (Bottom)
+
+    glColor3f(1.0,0.0,0.0);          # Set The Color To Red
+    glVertex3f( 1.0, 1.0, 1.0);          # Top Right Of The Quad (Front)
+    glVertex3f(-1.0, 1.0, 1.0);          # Top Left Of The Quad (Front)
+    glVertex3f(-1.0,-1.0, 1.0);          # Bottom Left Of The Quad (Front)
+    glVertex3f( 1.0,-1.0, 1.0);          # Bottom Right Of The Quad (Front)
+
+    glColor3f(1.0,1.0,0.0);          # Set The Color To Yellow
+    glVertex3f( 1.0,-1.0,-1.0);          # Bottom Left Of The Quad (Back)
+    glVertex3f(-1.0,-1.0,-1.0);          # Bottom Right Of The Quad (Back)
+    glVertex3f(-1.0, 1.0,-1.0);          # Top Right Of The Quad (Back)
+    glVertex3f( 1.0, 1.0,-1.0);          # Top Left Of The Quad (Back)
+
+    glColor3f(0.0,0.0,1.0);          # Set The Color To Blue
+    glVertex3f(-1.0, 1.0, 1.0);          # Top Right Of The Quad (Left)
+    glVertex3f(-1.0, 1.0,-1.0);          # Top Left Of The Quad (Left)
+    glVertex3f(-1.0,-1.0,-1.0);          # Bottom Left Of The Quad (Left)
+    glVertex3f(-1.0,-1.0, 1.0);          # Bottom Right Of The Quad (Left)
+
+    glColor3f(1.0,0.0,1.0);          # Set The Color To Violet
+    glVertex3f( 1.0, 1.0,-1.0);          # Top Right Of The Quad (Right)
+    glVertex3f( 1.0, 1.0, 1.0);          # Top Left Of The Quad (Right)
+    glVertex3f( 1.0,-1.0, 1.0);          # Bottom Left Of The Quad (Right)
+    glVertex3f( 1.0,-1.0,-1.0);          # Bottom Right Of The Quad (Right)
+    glEnd();                        # Done Drawing The Quad
+
+    glPopMatrix()
+
+def draw_ball():
+    glEnable(GL_COLOR_MATERIAL)
+    drawSphere(sphere,1.5,0.0,-3.0,0.5)
+    glDisable(GL_COLOR_MATERIAL)
+
 def load_shaders(vert_url, frag_url):
     vert_str = "\n".join(open(vert_url).readlines())
     frag_str = "\n".join(open(frag_url).readlines())
@@ -65,15 +271,15 @@ def initView_sky(width=800, height=600):
     
     return viewMatrix_sky
 
-def render():
+def loadSkybox():
     global width, height, program
     global rotation, cubemap
     global skybox_vbo
     global viewMatrix_sky
 
-    glEnable(GL_DEPTH_TEST)
-    glEnable(GL_TEXTURE_2D)
-    glEnable(GL_TEXTURE_CUBE_MAP)
+    # glEnable(GL_DEPTH_TEST)
+    # glEnable(GL_TEXTURE_2D)
+    # glEnable(GL_TEXTURE_CUBE_MAP)
 
     skybox_right = [1, -1, -1, 1, -1,  1, 1,  1,  1, 1,  1,  1, 1,  1, -1, 1, -1, -1]
     skybox_left = [-1, -1,  1, -1, -1, -1, -1,  1, -1, -1,  1, -1, -1,  1,  1, -1, -1,  1]
@@ -88,15 +294,21 @@ def render():
     glBufferData(GL_ARRAY_BUFFER, skybox_vertices.nbytes, skybox_vertices, GL_STATIC_DRAW)
     glBindBuffer(GL_ARRAY_BUFFER, 0)
 
+def render():
+    global program
+    global cubemap
+    global skybox_vbo
+    global viewMatrix_sky
+
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_TEXTURE_2D)
+    glEnable(GL_TEXTURE_CUBE_MAP)
+
     glClear(GL_COLOR_BUFFER_BIT)
     glClear(GL_DEPTH_BUFFER_BIT)
 
     glLoadIdentity()
     glMultMatrixf(viewMatrix_sky)
-    # glRotate(rotation, 0, 1, 0)#spin around y axis
-    # glRotate(rotation, 1, 0, 0)#spin around x axis
-    # glRotate(rotation, 1, 1, 1)#rotate around x, y, and z axes
-
     glUseProgram(program)
     glDepthMask(GL_FALSE)
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap)
@@ -113,36 +325,15 @@ def render():
     viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
 
     glLoadIdentity()
+    glDisable(GL_TEXTURE_2D)
+    glDisable(GL_TEXTURE_CUBE_MAP)
 
-    # pygame.display.flip()
-
-# def load_cubemap(folder_url):
 def load_cubemap():
     tex_id = glGenTextures(1)
-    # face_order = ["right", "left", "top", "bottom", "back", "front"]
-    """
-    #hack that fixes issues for ./images1/
-    face_order = ["right", "left", "top", "bottom", "front", "back"]
-    """
-    # face_urls = sorted(glob.glob(folder_url + "*"))
     glActiveTexture(GL_TEXTURE0)
     glBindTexture(GL_TEXTURE_CUBE_MAP, tex_id)
     for i, face in enumerate(skyBoxFiles_path):
-        # face_url = [face_url for face_url in face_urls if face in face_url.lower()][0]
         face_image = Image.open(face)
-        """
-        #hack that fixes issues for ./images2/
-        if face == "bottom":
-            face_image = pygame.transform.rotate(face_image, 270)
-        if face == "top":
-            face_image = pygame.transform.rotate(face_image, 90)
-        """
-        """
-        #hack that fixes issues for ./images3/
-        if face == "bottom" or face == "top":
-            face_image = pygame.transform.rotate(face_image, 180)
-        """
-        # face_surface = pygame.image.tostring(face_image, 'RGB')
         face_width, face_height, face_surface = face_image.size[0],face_image.size[1],face_image.tobytes("raw", "RGBX",0,-1)
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 3, face_width, face_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, face_surface)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
@@ -175,6 +366,7 @@ def temp_drawCylinder():
 
 def cylinder_2p( cylinder, v1, v2, lengthRatio=1, base=0.05, top=0.05, color=[(1,0,0),(1,0,0),(1,0,0),(1,0,0)]):
     # glMaterialfv(GL_FRONT, GL_DIFFUSE, [color[0], color[1], color[2], color[3]])
+    glEnable(GL_COLOR_MATERIAL)
     glColor4f(1, 1, 1, 0)  # Select color
     v2r = np.subtract(v2,v1)
     z = np.array([0.0, 0.0, 1.0])
@@ -190,6 +382,7 @@ def cylinder_2p( cylinder, v1, v2, lengthRatio=1, base=0.05, top=0.05, color=[(1
     # glutSolidCylinder(dim / 10.0, l, 20, 20)
     gluCylinder(cylinder, base,top,l/lengthRatio, 32, 16)
     glPopMatrix()
+    glEnable(GL_COLOR_MATERIAL)
 
 def drawCylinder(cylinder, v1,v2, base=0.1, top=0.1):
     ''' This function draws a sphere in coordinates (x,y,z) '''
@@ -212,7 +405,7 @@ def drawSphere(sphere, x=0, y=0, z=0, radius=0.1):
     glPushMatrix()
 
     glTranslatef(x, y, z)  # Move to the place
-    glColor4f(0, 1, 0, 1)  # Select color
+    glColor4f(0, 0, 1, 1)  # Select color
     # glColor4f(abs(x)+0.2, abs(y)+0.2, abs(z)+0.2, 1)  # Select color (dynamic)
     gluSphere(sphere, radius, 32, 16)  # Draw sphere
 
@@ -233,6 +426,7 @@ def initView(width=800, height=600):
     # gluLookAt(0, 0, 15, 0, 0, 0, 1, 1, 90)
     gluLookAt(10, -2, 0, 0, 0, 0, 0, 0, 1)
     viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
+    light()
     glLoadIdentity()
 
     return viewMatrix
@@ -254,13 +448,13 @@ def getInput(run):
     if keypress[pygame.K_w] or keypress[pygame.K_UP]:
         # currentMatrix=glGetInteger(GL_MATRIX_MODE)
         # print(currentMatrix)
-        glTranslatef(0, 0, 0.1)
-    if keypress[pygame.K_s] or keypress[pygame.K_DOWN]:
         glTranslatef(0, 0, -0.1)
+    if keypress[pygame.K_s] or keypress[pygame.K_DOWN]:
+        glTranslatef(0, 0, 0.1)
     if keypress[pygame.K_d] or keypress[pygame.K_RIGHT]:
-        glTranslatef(-0.1, 0, 0)
-    if keypress[pygame.K_a] or keypress[pygame.K_LEFT]:
         glTranslatef(0.1, 0, 0)
+    if keypress[pygame.K_a] or keypress[pygame.K_LEFT]:
+        glTranslatef(-0.1, 0, 0)
 
     if keypress[pygame.K_z]:
         glPushMatrix()
@@ -362,6 +556,8 @@ def Coord():
     glVertex3fv(verticies[0])
     glVertex3fv(verticies[3])
     glEnd()
+    glColor4f(1, 0, 0 , 0)  # Select color white
+    # glClear(GL_COLOR_BUFFER_BIT)
 
 def printmatrix4(templist):
     """
@@ -375,21 +571,33 @@ def printmatrix4(templist):
     pass
 
 viewMatrix = initView(800, 600)
+# light()
 viewMatrix_sky = initView_sky(800, 600)
+viewMatrix_light=viewMatrix
 # initView(800, 600)
+glEnable(GL_LIGHTING)
+
 sphere = gluNewQuadric()  # Create new sphere
 cylinder = gluNewQuadric()  # Create new cylinder
 
 program=load_shaders("./shaders/skybox.vert", "./shaders/skybox.frag")
 cubemap=load_cubemap()
+ID=loadImageToTexture()
+loadSkybox()
+
 rotation=0
 run = [True, 0]
 while run:
     idx=0
     while idx < 370:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear the screen
-
+        glLoadIdentity()
         render()
+        glLoadIdentity()
+        glMultMatrixf(viewMatrix_light)
+        drawSphere(sphere,lightPos[0],lightPos[1],lightPos[2],0.15)
+        glLoadIdentity()
+
         # s = "%02d" % idx
         s = str(idx)
         nm='animation/'+ s +'.json'
@@ -418,16 +626,14 @@ while run:
             v2=skeleton[line[1]]
             cylinder_2p(cylinder,v1,v2,lengthRatio)
         
-        # gluCylinder(cylinder, 0.1,0.1,1, 32, 16)  # Draw sphere
-        # temp_drawCylinder()
-
-        
         Coord()
-        # drawSphere(sphere, -1.5, 0, 0)
-        # drawSphere(sphere, 1.5, 0, 0)
 
+        # environment
+        drawCube(ID)
+        # nehe_draw()
+        draw_ball()  
         # glRotatef(1, 0, 1, 0)
-        rotation=1
+        # rotation=1
 
         pygame.display.flip()  # Update the screen
         pygame.time.wait(FrameSpeed)
