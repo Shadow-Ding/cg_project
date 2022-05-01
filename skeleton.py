@@ -58,6 +58,15 @@ rotation_sky_yp=[1,0,1,0]
 rotation_sky_yn=[-1,0,1,0]
 rotation_sky_zp=[1,0,0,1]
 rotation_sky_zn=[-1,0,0,1]
+rotation_skeleton_x=[3, 1, 0, 0]
+rotation_skeleton_y=[3, 0, 1, 0]
+rotation_skeleton_z=[3, 1, 0, 0]
+translation_skeleton_zp=[0,0,0.1]
+translation_skeleton_zn=[0,0,-0.1]
+translation_skeleton_yp=[0,0.1,0]
+translation_skeleton_yn=[0,-0.1,0]
+translation_skeleton_xp=[0.1,0,0]
+translation_skeleton_xn=[-0.1,0,0]
 
 def light():
     """
@@ -314,10 +323,7 @@ def render():
     glClear(GL_COLOR_BUFFER_BIT)
     glClear(GL_DEPTH_BUFFER_BIT)
 
-    # glLoadIdentity()
-    # glMultMatrixf(viewMatrix_sky.getValue())
-    viewMatrix_sky.multiple()
-    # glMultMatrixf(getattr(viewMatrix_sky,'matrixValue'))
+    viewMatrix_sky.apply()
     glUseProgram(program)
     glDepthMask(GL_FALSE)
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap)
@@ -330,11 +336,6 @@ def render():
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0)
     glDepthMask(GL_TRUE)
     glUseProgram(0)
-
-    # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-    viewMatrix_sky.update()
-
-    glLoadIdentity()
     glDisable(GL_TEXTURE_2D)
     glDisable(GL_TEXTURE_CUBE_MAP)
 
@@ -443,105 +444,57 @@ def getInput(run):
     keypress = pygame.key.get_pressed()
     # Movement
     if keypress[pygame.K_w] or keypress[pygame.K_UP]:
-        glTranslatef(0, 0, -0.1)
+        viewMatrix_skeleton.translate_camera(translation_skeleton_zp)
+        viewMatrix_objects.translate_camera(translation_skeleton_zp)
     if keypress[pygame.K_s] or keypress[pygame.K_DOWN]:
-        glTranslatef(0, 0, 0.1)
+        viewMatrix_skeleton.translate_camera(translation_skeleton_zn)
+        viewMatrix_objects.translate_camera(translation_skeleton_zn)
     if keypress[pygame.K_d] or keypress[pygame.K_RIGHT]:
-        glTranslatef(0.1, 0, 0)
+        viewMatrix_skeleton.translate_camera(translation_skeleton_xp)
+        viewMatrix_objects.translate_camera(translation_skeleton_xp)
     if keypress[pygame.K_a] or keypress[pygame.K_LEFT]:
-        glTranslatef(-0.1, 0, 0)
+        viewMatrix_skeleton.translate_camera(translation_skeleton_xn)
+        viewMatrix_objects.translate_camera(translation_skeleton_xn)
 
     if keypress[pygame.K_z]:
-        glPushMatrix()
-        glLoadIdentity()
-        glMultMatrixf(viewMatrix)
-        glRotate(3, 1, 0, 0)#spin around x axis
-        viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
-        glPopMatrix()
+        viewMatrix_skeleton.rotate_model(rotation_skeleton_x)
         
     if keypress[pygame.K_x]:
-        glPushMatrix()
-        glLoadIdentity()
-        glMultMatrixf(viewMatrix)
-        glRotate(3, 0, 1, 0)#spin around y axis
-        viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
-        glPopMatrix()
+        viewMatrix_skeleton.rotate_model(rotation_skeleton_y)
 
     if keypress[pygame.K_c]:
-        glPushMatrix()
-        glLoadIdentity()
-        glMultMatrixf(viewMatrix)
-        glRotate(3, 0, 0, 1)#spin around x axis
-        viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
-        glPopMatrix()
+        viewMatrix_skeleton.rotate_model(rotation_skeleton_z)
 
     # movement for skybox
     if keypress[pygame.K_u] :
-        # glPushMatrix()
-        # glLoadIdentity()
-        # glRotate(1, 1, 0, 0)#spin around x axis
-        # glMultMatrixf(viewMatrix_sky)
-        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        # glPopMatrix()
         viewMatrix_sky.rotate_camera(rotation_sky_xp)
-        #this is used for the skeleton
-        glRotate(1, 1, 0, 0)
+        viewMatrix_skeleton.rotate_camera(rotation_sky_xp)
+        viewMatrix_objects.rotate_camera(rotation_sky_xp)
 
     if keypress[pygame.K_i] :
-        # glPushMatrix()
-        # glLoadIdentity()
-        # glRotate(-1, 1, 0, 0)#spin around x axis
-        # glMultMatrixf(viewMatrix_sky)
-        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        # glPopMatrix()
-        #this is used for the skeleton
         viewMatrix_sky.rotate_camera(rotation_sky_xn)
-
-        glRotate(-1, 1, 0, 0)
+        viewMatrix_skeleton.rotate_camera(rotation_sky_xn)
+        viewMatrix_objects.rotate_camera(rotation_sky_xn)
 
     if keypress[pygame.K_j] :
-        # glPushMatrix()
-        # glLoadIdentity()
-        # glRotate(1, 0, 1, 0)#spin around y axis
-        # glMultMatrixf(viewMatrix_sky)
-        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        # glPopMatrix()
         viewMatrix_sky.rotate_camera(rotation_sky_yp)
-
-        glRotate(1, 0, 1, 0)
+        viewMatrix_skeleton.rotate_camera(rotation_sky_yp)
+        viewMatrix_objects.rotate_camera(rotation_sky_yp)
 
     if keypress[pygame.K_k] :
-        # glPushMatrix()
-        # glLoadIdentity()
-        # glRotate(-1, 0, 1, 0)#spin around y axis
-        # glMultMatrixf(viewMatrix_sky)
-        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        # glPopMatrix()
         viewMatrix_sky.rotate_camera(rotation_sky_yn)
-
-        glRotate(-1, 0, 1, 0)#spin around y axis
+        viewMatrix_skeleton.rotate_camera(rotation_sky_yn)
+        viewMatrix_objects.rotate_camera(rotation_sky_yn)
 
     if keypress[pygame.K_n] :
-        # glPushMatrix()
-        # glLoadIdentity()
-        # glRotate(1, 0, 0, 1)#spin around z axis
-        # glMultMatrixf(viewMatrix_sky)
-        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        # glPopMatrix()
         viewMatrix_sky.rotate_camera(rotation_sky_zp)
-
-        glRotate(1, 0, 0, 1)#spin around z axis
+        viewMatrix_skeleton.rotate_camera(rotation_sky_zp)
+        viewMatrix_objects.rotate_camera(rotation_sky_zp)
 
     if keypress[pygame.K_m] :
-        # glPushMatrix()
-        # glLoadIdentity()
-        # glRotate(-1, 0, 0, 1)#spin around y axis
-        # glMultMatrixf(viewMatrix_sky)
-        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        # glPopMatrix()
         viewMatrix_sky.rotate_camera(rotation_sky_zn)
-
-        glRotate(-1, 0, 0, 1)#spin around y axis
+        viewMatrix_skeleton.rotate_camera(rotation_sky_zn)
+        viewMatrix_objects.rotate_camera(rotation_sky_zn)
 
     return run
 
@@ -579,14 +532,14 @@ def printmatrix4(templist):
     pass
 
 def drawLightBulb():
-    glLoadIdentity()
-    glMultMatrixf(viewMatrix_light)
+    viewMatrix_light.apply()
     drawSphere(sphere,lightPos[0],lightPos[1],lightPos[2],0.15,lightBallColor)
 
 viewMatrix = initView(800, 600)
-viewMatrix_sky_tmp = initView_sky(800, 600)
-viewMatrix_sky = mtx.matrix(viewMatrix_sky_tmp)
-viewMatrix_light=viewMatrix
+viewMatrix_light=mtx.matrix(viewMatrix)
+viewMatrix_skeleton=mtx.matrix(viewMatrix)
+viewMatrix_objects=mtx.matrix(viewMatrix)
+viewMatrix_sky = mtx.matrix(initView_sky(800, 600))
 glEnable(GL_LIGHTING)
 
 sphere = gluNewQuadric()  # Create new sphere
@@ -619,9 +572,10 @@ while run:
 
         run = getInput(run)
 
-        glMultMatrixf(viewMatrix)
-        viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
+        # glMultMatrixf(viewMatrix)
+        # viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 
+        viewMatrix_skeleton.apply()
         for joint in skeleton:
             drawSphere(
                 sphere,
@@ -641,16 +595,13 @@ while run:
         Coord()
 
         # environment
+        viewMatrix_objects.apply()
         drawCube(ID)
         # nehe_draw()
         draw_ball()  
-        # glRotatef(1, 0, 1, 0)
-        # rotation=1
 
         pygame.display.flip()  # Update the screen
         pygame.time.wait(FrameSpeed)
-
-        idx=idx+1
 
 glDeleteBuffers()
 pygame.quit()

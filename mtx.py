@@ -30,20 +30,20 @@ class matrix():
        glPopMatrix()
        pass
 
-    def translate_camera(self, translate_para=[1, 1, 0, 0]):
+    def translate_camera(self, translate_para=[1, 1, 0]):
        """
        docstring
        """
        glPushMatrix()
        glLoadIdentity()
        glTranslatef(translate_para[0], translate_para[1],
-                    translate_para[2], translate_para[3])  # spin around x axis
+                    translate_para[2])  # spin around x axis
        glMultMatrixf(self.matrixValue)
        self.matrixValue = glGetFloatv(GL_MODELVIEW_MATRIX)
        glPopMatrix()
        pass
 
-    def translate_model(self, translate_para=[1, 1, 0, 0]):
+    def translate_model(self, translate_para=[1, 1, 0]):
        """
        docstring
        """
@@ -51,12 +51,12 @@ class matrix():
        glLoadIdentity()
        glMultMatrixf(self.matrixValue)
        glTranslatef(translate_para[0], translate_para[1],
-                    translate_para[2], translate_para[3])  # spin around x axis
+                    translate_para[2])  # spin around x axis
        self.matrixValue = glGetFloatv(GL_MODELVIEW_MATRIX)
        glPopMatrix()
        pass
 
-    def multiple(self):
+    def apply(self):
         glLoadIdentity()
         glMultMatrixf(self.matrixValue)
         pass
