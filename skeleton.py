@@ -14,6 +14,7 @@ from OpenGL.GL import shaders
 
 import json
 from PIL import Image
+import mtx
 
 FrameSpeed=20
 lengthRatio=500
@@ -51,6 +52,12 @@ skyBoxFiles_path=(
 imageName="Lena.png"
 
 lightPos=[1.5,-2.0,-3.0]
+rotation_sky_xp=[1,1,0,0]
+rotation_sky_xn=[-1,1,0,0]
+rotation_sky_yp=[1,0,1,0]
+rotation_sky_yn=[-1,0,1,0]
+rotation_sky_zp=[1,0,0,1]
+rotation_sky_zn=[-1,0,0,1]
 
 def light():
     """
@@ -267,15 +274,15 @@ def initView_sky(width=800, height=600):
     gluPerspective(60, float(width)/height, 0.1, 1000)
     glMatrixMode(GL_MODELVIEW)
 
-    viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
+    # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
     
-    return viewMatrix_sky
+    return glGetFloatv(GL_MODELVIEW_MATRIX)
 
 def loadSkybox():
     global width, height, program
     global rotation, cubemap
     global skybox_vbo
-    global viewMatrix_sky
+    # global viewMatrix_sky
 
     # glEnable(GL_DEPTH_TEST)
     # glEnable(GL_TEXTURE_2D)
@@ -307,8 +314,10 @@ def render():
     glClear(GL_COLOR_BUFFER_BIT)
     glClear(GL_DEPTH_BUFFER_BIT)
 
-    glLoadIdentity()
-    glMultMatrixf(viewMatrix_sky)
+    # glLoadIdentity()
+    # glMultMatrixf(viewMatrix_sky.getValue())
+    viewMatrix_sky.multiple()
+    # glMultMatrixf(getattr(viewMatrix_sky,'matrixValue'))
     glUseProgram(program)
     glDepthMask(GL_FALSE)
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap)
@@ -322,7 +331,8 @@ def render():
     glDepthMask(GL_TRUE)
     glUseProgram(0)
 
-    viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
+    # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
+    viewMatrix_sky.update()
 
     glLoadIdentity()
     glDisable(GL_TEXTURE_2D)
@@ -351,23 +361,10 @@ def cross_product_3(a,b):
 
     return c
 
-def temp_drawCylinder():
-    ''' This function draws a sphere in coordinates (x,y,z) '''
-    glPushMatrix()
-    # glRotatef(45,0,0,1)
-    glTranslatef(1,0,0)  # Move to the place
-    glRotatef(45,0,0,1)
-    # glMultMatrixf(viewMatrix)
-    glColor4f(1, 1, 1, 1)  # Select color
-    
-    gluCylinder(cylinder, 0.1,0.1,1, 32, 16)
-
-    glPopMatrix()
-
-def cylinder_2p( cylinder, v1, v2, lengthRatio=1, base=0.05, top=0.05, color=[(1,0,0),(1,0,0),(1,0,0),(1,0,0)]):
+def cylinder_2p( cylinder, v1, v2, lengthRatio=1,  color=[1.0,1.0,1.0,1.0],base=0.05, top=0.05):
     # glMaterialfv(GL_FRONT, GL_DIFFUSE, [color[0], color[1], color[2], color[3]])
     glEnable(GL_COLOR_MATERIAL)
-    glColor4f(1, 1, 1, 0)  # Select color
+    glColor4f(color[0], color[1], color[2], color[3])  # Select color
     v2r = np.subtract(v2,v1)
     z = np.array([0.0, 0.0, 1.0])
     # the rotation axis is the cross product between Z and v2r
@@ -382,7 +379,7 @@ def cylinder_2p( cylinder, v1, v2, lengthRatio=1, base=0.05, top=0.05, color=[(1
     # glutSolidCylinder(dim / 10.0, l, 20, 20)
     gluCylinder(cylinder, base,top,l/lengthRatio, 32, 16)
     glPopMatrix()
-    glEnable(GL_COLOR_MATERIAL)
+    glDisable(GL_COLOR_MATERIAL)
 
 def drawCylinder(cylinder, v1,v2, base=0.1, top=0.1):
     ''' This function draws a sphere in coordinates (x,y,z) '''
@@ -400,15 +397,15 @@ def drawCylinder(cylinder, v1,v2, base=0.1, top=0.1):
 
     glPopMatrix()
 
-def drawSphere(sphere, x=0, y=0, z=0, radius=0.1):
+def drawSphere(sphere, x=0, y=0, z=0, radius=0.1, color=[1.0,1.0,1.0,1.0]):
     ''' This function draws a sphere in coordinates (x,y,z) '''
     glPushMatrix()
-
+    glEnable(GL_COLOR_MATERIAL)
     glTranslatef(x, y, z)  # Move to the place
-    glColor4f(0, 0, 1, 1)  # Select color
+    glColor4f(color[0], color[1], color[2], color[3])  # Select color
     # glColor4f(abs(x)+0.2, abs(y)+0.2, abs(z)+0.2, 1)  # Select color (dynamic)
     gluSphere(sphere, radius, 32, 16)  # Draw sphere
-
+    glDisable(GL_COLOR_MATERIAL)
     glPopMatrix()
 
 def initView(width=800, height=600):
@@ -446,8 +443,6 @@ def getInput(run):
     keypress = pygame.key.get_pressed()
     # Movement
     if keypress[pygame.K_w] or keypress[pygame.K_UP]:
-        # currentMatrix=glGetInteger(GL_MATRIX_MODE)
-        # print(currentMatrix)
         glTranslatef(0, 0, -0.1)
     if keypress[pygame.K_s] or keypress[pygame.K_DOWN]:
         glTranslatef(0, 0, 0.1)
@@ -482,65 +477,77 @@ def getInput(run):
 
     # movement for skybox
     if keypress[pygame.K_u] :
-        glPushMatrix()
-        glLoadIdentity()
-        glRotate(1, 1, 0, 0)#spin around x axis
-        glMultMatrixf(viewMatrix_sky)
-        viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        glPopMatrix()
+        # glPushMatrix()
+        # glLoadIdentity()
+        # glRotate(1, 1, 0, 0)#spin around x axis
+        # glMultMatrixf(viewMatrix_sky)
+        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
+        # glPopMatrix()
+        viewMatrix_sky.rotate_camera(rotation_sky_xp)
         #this is used for the skeleton
         glRotate(1, 1, 0, 0)
 
     if keypress[pygame.K_i] :
-        glPushMatrix()
-        glLoadIdentity()
-        glRotate(-1, 1, 0, 0)#spin around x axis
-        glMultMatrixf(viewMatrix_sky)
-        viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        glPopMatrix()
+        # glPushMatrix()
+        # glLoadIdentity()
+        # glRotate(-1, 1, 0, 0)#spin around x axis
+        # glMultMatrixf(viewMatrix_sky)
+        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
+        # glPopMatrix()
         #this is used for the skeleton
+        viewMatrix_sky.rotate_camera(rotation_sky_xn)
+
         glRotate(-1, 1, 0, 0)
 
     if keypress[pygame.K_j] :
-        glPushMatrix()
-        glLoadIdentity()
-        glRotate(1, 0, 1, 0)#spin around y axis
-        glMultMatrixf(viewMatrix_sky)
-        viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        glPopMatrix()
+        # glPushMatrix()
+        # glLoadIdentity()
+        # glRotate(1, 0, 1, 0)#spin around y axis
+        # glMultMatrixf(viewMatrix_sky)
+        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
+        # glPopMatrix()
+        viewMatrix_sky.rotate_camera(rotation_sky_yp)
+
         glRotate(1, 0, 1, 0)
 
     if keypress[pygame.K_k] :
-        glPushMatrix()
-        glLoadIdentity()
-        glRotate(-1, 0, 1, 0)#spin around y axis
-        glMultMatrixf(viewMatrix_sky)
-        viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        glPopMatrix()
+        # glPushMatrix()
+        # glLoadIdentity()
+        # glRotate(-1, 0, 1, 0)#spin around y axis
+        # glMultMatrixf(viewMatrix_sky)
+        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
+        # glPopMatrix()
+        viewMatrix_sky.rotate_camera(rotation_sky_yn)
+
         glRotate(-1, 0, 1, 0)#spin around y axis
 
     if keypress[pygame.K_n] :
-        glPushMatrix()
-        glLoadIdentity()
-        glRotate(1, 0, 0, 1)#spin around z axis
-        glMultMatrixf(viewMatrix_sky)
-        viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        glPopMatrix()
+        # glPushMatrix()
+        # glLoadIdentity()
+        # glRotate(1, 0, 0, 1)#spin around z axis
+        # glMultMatrixf(viewMatrix_sky)
+        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
+        # glPopMatrix()
+        viewMatrix_sky.rotate_camera(rotation_sky_zp)
+
         glRotate(1, 0, 0, 1)#spin around z axis
 
     if keypress[pygame.K_m] :
-        glPushMatrix()
-        glLoadIdentity()
-        glRotate(-1, 0, 0, 1)#spin around y axis
-        glMultMatrixf(viewMatrix_sky)
-        viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
-        glPopMatrix()
+        # glPushMatrix()
+        # glLoadIdentity()
+        # glRotate(-1, 0, 0, 1)#spin around y axis
+        # glMultMatrixf(viewMatrix_sky)
+        # viewMatrix_sky = glGetFloatv(GL_MODELVIEW_MATRIX)
+        # glPopMatrix()
+        viewMatrix_sky.rotate_camera(rotation_sky_zn)
+
         glRotate(-1, 0, 0, 1)#spin around y axis
 
     return run
 
 # coordinate (Draw the coordinate)
 def Coord():
+    glEnable(GL_COLOR_MATERIAL)
     glBegin(GL_LINES)
     glColor4f(1, 0, 0, 1)  # Select color RED, Z
     glVertex3fv(verticies[0])
@@ -556,6 +563,7 @@ def Coord():
     glVertex3fv(verticies[0])
     glVertex3fv(verticies[3])
     glEnd()
+    glDisable(GL_COLOR_MATERIAL)
     glColor4f(1, 0, 0 , 0)  # Select color white
     # glClear(GL_COLOR_BUFFER_BIT)
 
@@ -570,15 +578,23 @@ def printmatrix4(templist):
             print (templist[x],end=' ')
     pass
 
+def drawLightBulb():
+    glLoadIdentity()
+    glMultMatrixf(viewMatrix_light)
+    drawSphere(sphere,lightPos[0],lightPos[1],lightPos[2],0.15,lightBallColor)
+
 viewMatrix = initView(800, 600)
-# light()
-viewMatrix_sky = initView_sky(800, 600)
+viewMatrix_sky_tmp = initView_sky(800, 600)
+viewMatrix_sky = mtx.matrix(viewMatrix_sky_tmp)
 viewMatrix_light=viewMatrix
-# initView(800, 600)
 glEnable(GL_LIGHTING)
 
 sphere = gluNewQuadric()  # Create new sphere
 cylinder = gluNewQuadric()  # Create new cylinder
+
+lightBallColor=[1.0,1.0,1.0,1.0]
+skeletonJointColor=[1.0,1.0,0.0,1.0]
+skeletonLineColor=[27/256, 138/256, 179/256, 1]
 
 program=load_shaders("./shaders/skybox.vert", "./shaders/skybox.frag")
 cubemap=load_cubemap()
@@ -591,17 +607,12 @@ while run:
     idx=0
     while idx < 370:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear the screen
-        glLoadIdentity()
         render()
-        glLoadIdentity()
-        glMultMatrixf(viewMatrix_light)
-        drawSphere(sphere,lightPos[0],lightPos[1],lightPos[2],0.15)
+        drawLightBulb()
         glLoadIdentity()
 
-        # s = "%02d" % idx
         s = str(idx)
         nm='animation/'+ s +'.json'
-        # print(nm)
     
         with open(nm) as f:
             skeleton = json.load(f)
@@ -611,20 +622,21 @@ while run:
         glMultMatrixf(viewMatrix)
         viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 
-        # drawCylinder(cylinder,0.5,0.5,1,0,0,0)
-
-        # with open('animation/100.json') as f:
-        #     skeleton = json.load(f)
-
         for joint in skeleton:
-            drawSphere(sphere, (joint[0]-skeleton[0][0])/lengthRatio,
-                    (joint[1]-skeleton[0][1])/lengthRatio, (joint[2]-skeleton[0][2])/lengthRatio)
+            drawSphere(
+                sphere,
+                (joint[0]-skeleton[0][0])/lengthRatio,
+                (joint[1]-skeleton[0][1])/lengthRatio,
+                (joint[2]-skeleton[0][2])/lengthRatio,
+                0.1,
+                skeletonJointColor
+            )
         
         for line in lineOrder:
             # print(line)
             v1=skeleton[line[0]]
             v2=skeleton[line[1]]
-            cylinder_2p(cylinder,v1,v2,lengthRatio)
+            cylinder_2p(cylinder,v1,v2,lengthRatio, skeletonLineColor)
         
         Coord()
 
