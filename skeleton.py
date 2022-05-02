@@ -1,5 +1,8 @@
 # Install requirements:
 # pip install pyopengl
+# pip install pygame
+# pip install Pillow
+# pip install numpy
 
 import math
 import numpy as np
@@ -231,7 +234,6 @@ def load_cubemap():
     return tex_id
 
 def cylinder_2p( cylinder, v1, v2, lengthRatio=1,  color=[1.0,1.0,1.0,1.0],base=0.05, top=0.05):
-    # glMaterialfv(GL_FRONT, GL_DIFFUSE, [color[0], color[1], color[2], color[3]])
     glEnable(GL_COLOR_MATERIAL)
     glColor4f(color[0], color[1], color[2], color[3])  # Select color
     v2r = np.subtract(v2,v1)
@@ -245,7 +247,6 @@ def cylinder_2p( cylinder, v1, v2, lengthRatio=1,  color=[1.0,1.0,1.0,1.0],base=
     glTranslatef(v1[0]/lengthRatio, v1[1]/lengthRatio, v1[2]/lengthRatio)
     #print "The cylinder between %s and %s has angle %f and axis %s\n" % (v1, v2, angle, ax)
     glRotatef(angle, ax[0], ax[1], ax[2])
-    # glutSolidCylinder(dim / 10.0, l, 20, 20)
     gluCylinder(cylinder, base,top,l/lengthRatio, 32, 16)
     glPopMatrix()
     glDisable(GL_COLOR_MATERIAL)
