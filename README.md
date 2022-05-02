@@ -40,3 +40,6 @@ Run the following command:
 ```
 python3 skeleton.py
 ```
+
+## Demo video
+Here is [link](https://youtu.be/hfDZ-DMDJck) for demo video of this project.
