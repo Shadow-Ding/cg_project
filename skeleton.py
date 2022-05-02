@@ -51,7 +51,7 @@ skyBoxFiles_path=(
     "skybox/skybox/front.jpg"
 )
 
-imageName="Lena.png"
+imageName="resources/Lena.png"
 
 lightPos=[1.5,-2.0,-3.0]
 rotation_sky_xp=[1,1,0,0]
