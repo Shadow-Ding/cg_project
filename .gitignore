@@ -33,3 +33,4 @@ Temporary Items
 
 # End of https://www.toptal.com/developers/gitignore/api/macos
 __pycache__/mtx.cpython-39.pyc
+nehe05.py
